@@ -58,7 +58,6 @@
       ).then(() => {
         array1.forEach(element => {
           if (element.snippet.position == localStorage.getItem('lastWatched')) {
-            alert(localStorage.getItem('lastWatched')+element.snippet.resourceId)
             playYouTubeVideo(element.snippet.resourceId.videoId);
 
             
