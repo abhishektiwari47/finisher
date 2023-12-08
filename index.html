@@ -1,0 +1,125 @@
+<script src="https://apis.google.com/js/api.js"></script>
+<script>
+  const lastWatched = localStorage.getItem('lastWatched');
+  if (lastWatched == null) {
+    console.log("empty");
+    localStorage.setItem('lastWatched', 0);
+  } else {
+    const last = localStorage.getItem('lastWatched')
+  
+    localStorage.setItem('lastWatched', Number(last) + 1);
+  }
+  let array1 = [];
+  let array2 = [];
+  let array3 = [];
+
+  function loadClient() {
+    gapi.client.setApiKey("AIzaSyCIZzXvPirPvRk2qPmuOoBML8Qt-mArApc");
+    return gapi.client.load("https://www.googleapis.com/discovery/v1/apis/youtube/v3/rest")
+      .then(
+        function () {
+          console.log("GAPI client loaded for API");
+          execute();  // Call execute function after loading
+        },
+        function (err) {
+          console.error("Error loading GAPI client for API", err);
+        }
+      );
+  }
+
+  function execute(pageToken) {
+    return gapi.client.youtube.playlistItems.list({
+      "part": ["snippet"],
+      "maxResults": 150,
+      "playlistId": "PLDzeHZWIZsTryvtXdMr6rPh4IDexB5NIA",
+      "key": "AIzaSyCIZzXvPirPvRk2qPmuOoBML8Qt-mArApc",
+      "pageToken": pageToken
+    })
+      .then(
+        function (response) {
+          // Handle the results here (response.result has the parsed body).
+          if (array1.length === 0) {
+            array1 = response.result.items;
+          } else if (array2.length === 0) {
+            array2 = response.result.items;
+          } else {
+            array3 = response.result.items;
+          }
+
+          // Check if there are more pages
+          if (response.result.nextPageToken) {
+            // Call execute recursively with the next page token
+            execute(response.result.nextPageToken);
+          }
+        },
+        function (err) {
+          console.error("Execute error", err);
+        }
+      ).then(() => {
+        array1.forEach(element => {
+          if (element.snippet.position == localStorage.getItem('lastWatched')) {
+            alert(localStorage.getItem('lastWatched')+element.snippet.resourceId)
+            playYouTubeVideo(element.snippet.resourceId.videoId);
+
+            
+          }
+        });
+      });
+  }
+
+  function playYouTubeVideo(videoId) {
+    const iframe = document.createElement("iframe");
+    iframe.width = window.innerWidth-25;
+    iframe.height = window.innerHeight-20;
+    iframe.src = `https://www.youtube.com/embed/${videoId}`;
+    iframe.frameBorder = "0";
+    iframe.allowfullscreen = true;
+
+    // Replace the existing content or append to a specific container
+    document.body.innerHTML = "";  // Remove existing content
+    document.body.appendChild(iframe);  // Append the iframe to the body
+  }
+
+  gapi.load("client", function () {
+    loadClient();
+  });
+  function handleKeyPress(event) {
+    if (event.key === 'n') {
+      // Your action when the "r" key is pressed
+      location.reload();
+      // Add your custom logic or function call here
+    }
+    if (event.ctrlKey && event.key === 'r') {
+      alert('Your progress will be reset after this. Proceeding to video 1 of this playlist.');
+      localStorage.removeItem('lastWatched');
+      location.reload();
+     
+     
+    }
+    if(event.key=='p')
+    {
+      if(Number(localStorage.getItem('lastWatched'))-2<0)
+      {
+        localStorage.removeItem('lastWatched')
+       
+      location.reload();
+      }
+      else{
+
+      
+      const prev = Number(localStorage.getItem('lastWatched'))-2;
+      localStorage.setItem('lastWatched',prev);
+     
+      location.reload();
+    }
+    }
+
+
+  }
+
+  // Add an event listener for the "keydown" event
+  document.addEventListener('keydown', handleKeyPress);
+
+</script>
+
+<h3 onclick="execute('EAAaL1BUOkNESWlFRVkyTURBM1JqUkJNVVk1TlVNd1F6SW9BVWl2NTVIS3Q5XzVBbEFC')">Loading...</h3>
