@@ -4,6 +4,7 @@
   if (lastWatched == null) {
     console.log("empty");
     localStorage.setItem('lastWatched', 0);
+    alert("Looks like you are here for the first time.\n\nHere are all the commands you need to know.\n\n'n': Next video \n\n'p': Previous video \n\n'ctrl+r': Reset progress (1st video) ")
   } else {
     const last = localStorage.getItem('lastWatched')
   
